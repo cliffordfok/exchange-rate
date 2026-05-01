@@ -3,15 +3,21 @@ import {
   AlertCircle,
   ArrowDownUp,
   CheckCircle2,
+  Plus,
   RefreshCw,
+  RotateCcw,
   Settings2,
   TrendingDown,
   TrendingUp,
+  X,
 } from "lucide-react";
 import {
+  AVAILABLE_CURRENCIES,
   BASE_CURRENCY,
   DEFAULT_CURRENCIES,
   PERIOD_OPTIONS,
+  getCurrencyMeta,
+  type CurrencyMeta,
   type CurrencyCode,
   type PeriodDays,
 } from "./lib/currencies";
@@ -35,14 +41,22 @@ export function App() {
   );
   const [loadState, setLoadState] = useState<LoadState>("idle");
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyCode>("JPY");
+  const [currencyToAdd, setCurrencyToAdd] = useState<CurrencyCode>("AUD");
   const [hkdAmount, setHkdAmount] = useState(10000);
   const [foreignAmount, setForeignAmount] = useState(0);
   const [lastEdited, setLastEdited] = useState<"hkd" | "foreign">("hkd");
 
   const visibleMetas = useMemo(
+    () => settings.visibleCurrencies.map((code) => getCurrencyMeta(code)),
+    [settings.visibleCurrencies],
+  );
+
+  const availableToAdd = useMemo(
     () =>
-      DEFAULT_CURRENCIES.filter((currency) =>
-        settings.visibleCurrencies.includes(currency.code),
+      AVAILABLE_CURRENCIES.filter(
+        (currency) =>
+          currency.code !== BASE_CURRENCY &&
+          !settings.visibleCurrencies.includes(currency.code),
       ),
     [settings.visibleCurrencies],
   );
@@ -50,6 +64,22 @@ export function App() {
   useEffect(() => {
     saveSettings(settings);
   }, [settings]);
+
+  useEffect(() => {
+    if (!settings.visibleCurrencies.includes(selectedCurrency)) {
+      setSelectedCurrency(settings.visibleCurrencies[0] ?? "JPY");
+    }
+  }, [selectedCurrency, settings.visibleCurrencies]);
+
+  useEffect(() => {
+    if (availableToAdd.length === 0) {
+      return;
+    }
+
+    if (!availableToAdd.some((currency) => currency.code === currencyToAdd)) {
+      setCurrencyToAdd(availableToAdd[0].code);
+    }
+  }, [availableToAdd, currencyToAdd]);
 
   useEffect(() => {
     let cancelled = false;
@@ -115,6 +145,41 @@ export function App() {
     setSettings((current) => ({ ...current, periodDays }));
   }
 
+  function addCurrency() {
+    if (!currencyToAdd || settings.visibleCurrencies.includes(currencyToAdd)) {
+      return;
+    }
+
+    setSettings((current) => ({
+      ...current,
+      visibleCurrencies: [...current.visibleCurrencies, currencyToAdd],
+    }));
+    setSelectedCurrency(currencyToAdd);
+  }
+
+  function removeCurrency(code: CurrencyCode) {
+    setSettings((current) => {
+      if (current.visibleCurrencies.length <= 1) {
+        return current;
+      }
+
+      return {
+        ...current,
+        visibleCurrencies: current.visibleCurrencies.filter(
+          (currency) => currency !== code,
+        ),
+      };
+    });
+  }
+
+  function resetCurrencies() {
+    setSettings((current) => ({
+      ...current,
+      visibleCurrencies: DEFAULT_CURRENCIES.map((currency) => currency.code),
+    }));
+    setSelectedCurrency(DEFAULT_CURRENCIES[0].code);
+  }
+
   return (
     <main>
       <section className="hero">
@@ -160,6 +225,51 @@ export function App() {
               {option.label}
             </button>
           ))}
+        </div>
+      </section>
+
+      <section className="currency-manager" aria-label="貨幣管理">
+        <div className="section-title">
+          <Plus size={20} aria-hidden="true" />
+          <div>
+            <h2>更換貨幣</h2>
+            <p>新增或移除你想追蹤嘅貨幣，換算器會跟住同步。</p>
+          </div>
+        </div>
+        <div className="currency-actions">
+          <label>
+            <span>新增貨幣</span>
+            <select
+              disabled={availableToAdd.length === 0}
+              onChange={(event) => setCurrencyToAdd(event.target.value)}
+              value={currencyToAdd}
+            >
+              {availableToAdd.map((currency) => (
+                <option key={currency.code} value={currency.code}>
+                  {currency.code} - {currency.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            className="icon-button primary"
+            disabled={availableToAdd.length === 0}
+            onClick={addCurrency}
+            title="新增貨幣"
+            type="button"
+          >
+            <Plus size={18} aria-hidden="true" />
+            <span>新增</span>
+          </button>
+          <button
+            className="icon-button"
+            onClick={resetCurrencies}
+            title="重設預設貨幣"
+            type="button"
+          >
+            <RotateCcw size={18} aria-hidden="true" />
+            <span>重設</span>
+          </button>
         </div>
       </section>
 
@@ -221,7 +331,9 @@ export function App() {
             isSelected={selectedCurrency === currency.code}
             key={currency.code}
             onSelect={() => setSelectedCurrency(currency.code)}
+            onRemove={() => removeCurrency(currency.code)}
             onTargetChange={(value) => updateTarget(currency.code, value)}
+            removable={visibleMetas.length > 1}
             snapshot={snapshots[currency.code]}
             target={settings.targets[currency.code]}
           />
@@ -242,14 +354,18 @@ function RateCard({
   currency,
   isSelected,
   onSelect,
+  onRemove,
   onTargetChange,
+  removable,
   snapshot,
   target,
 }: {
-  currency: (typeof DEFAULT_CURRENCIES)[number];
+  currency: CurrencyMeta;
   isSelected: boolean;
   onSelect: () => void;
+  onRemove: () => void;
   onTargetChange: (value: string) => void;
+  removable: boolean;
   snapshot?: CurrencySnapshot;
   target?: number;
 }) {
@@ -266,6 +382,15 @@ function RateCard({
           <strong>{currency.code}</strong>
           <small>{currency.name} · {currency.sampleUse}</small>
         </span>
+      </button>
+      <button
+        className="remove-card"
+        disabled={!removable}
+        onClick={onRemove}
+        title={removable ? "移除貨幣" : "至少保留一隻貨幣"}
+        type="button"
+      >
+        <X size={17} aria-hidden="true" />
       </button>
 
       {snapshot?.error ? (
