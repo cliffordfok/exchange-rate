@@ -3,12 +3,14 @@ import type { CurrencyCode, PeriodDays } from "./currencies";
 const STORAGE_KEY = "hkd-rate-watch-settings";
 
 export type UserSettings = {
+  bankSpreadPercent: number;
   periodDays: PeriodDays;
   targets: Partial<Record<CurrencyCode, number>>;
   visibleCurrencies: CurrencyCode[];
 };
 
 export const defaultSettings: UserSettings = {
+  bankSpreadPercent: 1.95,
   periodDays: 30,
   targets: {
     JPY: 20,

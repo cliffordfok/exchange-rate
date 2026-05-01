@@ -47,6 +47,28 @@ export function isTargetReached(currentRate: number, targetRate?: number): boole
   return currentRate >= targetRate;
 }
 
+export function applyBankSpread(rate: number, spreadPercent: number): number {
+  if (!Number.isFinite(rate) || rate <= 0) {
+    return 0;
+  }
+
+  if (!Number.isFinite(spreadPercent) || spreadPercent <= 0) {
+    return rate;
+  }
+
+  return rate * (1 - spreadPercent / 100);
+}
+
+export function formatPercent(value: number): string {
+  if (!Number.isFinite(value)) {
+    return "0%";
+  }
+
+  return `${value.toLocaleString("en-US", {
+    maximumFractionDigits: 2,
+  })}%`;
+}
+
 export function formatRate(value: number): string {
   const fractionDigits = getRateFractionDigits(value);
 

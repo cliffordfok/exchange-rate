@@ -3,7 +3,9 @@ import {
   classifyAgainstHistory,
   convertFromHkd,
   convertToHkd,
+  applyBankSpread,
   formatAmount,
+  formatPercent,
   formatRate,
   buildHistoricalUrl,
   isTargetReached,
@@ -57,6 +59,15 @@ describe("rate helpers", () => {
 
   it("parses numeric input with separators", () => {
     expect(parseNumberInput("1,234,567.89")).toBe(1234567.89);
+  });
+
+  it("applies a bank spread to estimate the effective buy rate", () => {
+    expect(applyBankSpread(20, 1.95)).toBeCloseTo(19.61);
+    expect(applyBankSpread(20, 0)).toBe(20);
+  });
+
+  it("formats spread percentages", () => {
+    expect(formatPercent(1.95)).toBe("1.95%");
   });
 
   it("builds the current Frankfurter v1 historical URL", () => {

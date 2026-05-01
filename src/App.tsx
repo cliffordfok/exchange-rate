@@ -25,7 +25,9 @@ import { fetchCurrencySnapshot, type CurrencySnapshot } from "./lib/api";
 import {
   convertFromHkd,
   convertToHkd,
+  applyBankSpread,
   formatAmount,
+  formatPercent,
   formatRate,
   isTargetReached,
   parseNumberInput,
@@ -117,18 +119,22 @@ export function App() {
 
   const selectedSnapshot = snapshots[selectedCurrency];
   const selectedRate = selectedSnapshot?.latestRate ?? 0;
+  const selectedEffectiveRate = applyBankSpread(
+    selectedRate,
+    settings.bankSpreadPercent,
+  );
 
   useEffect(() => {
-    if (!selectedRate) {
+    if (!selectedEffectiveRate) {
       return;
     }
 
     if (lastEdited === "hkd") {
-      setForeignAmount(convertFromHkd(hkdAmount, selectedRate));
+      setForeignAmount(convertFromHkd(hkdAmount, selectedEffectiveRate));
     } else {
-      setHkdAmount(convertToHkd(foreignAmount, selectedRate));
+      setHkdAmount(convertToHkd(foreignAmount, selectedEffectiveRate));
     }
-  }, [foreignAmount, hkdAmount, lastEdited, selectedRate]);
+  }, [foreignAmount, hkdAmount, lastEdited, selectedEffectiveRate]);
 
   function updateTarget(code: CurrencyCode, value: string) {
     const target = Number(value);
@@ -143,6 +149,17 @@ export function App() {
 
   function updatePeriod(periodDays: PeriodDays) {
     setSettings((current) => ({ ...current, periodDays }));
+  }
+
+  function updateBankSpread(value: string) {
+    const spreadPercent = Number(value);
+    setSettings((current) => ({
+      ...current,
+      bankSpreadPercent:
+        Number.isFinite(spreadPercent) && spreadPercent >= 0
+          ? spreadPercent
+          : current.bankSpreadPercent,
+    }));
   }
 
   function addCurrency() {
@@ -214,17 +231,29 @@ export function App() {
             <p>設定歷史比較區間同每隻貨幣嘅理想兌換價。</p>
           </div>
         </div>
-        <div className="segmented" aria-label="歷史比較區間">
-          {PERIOD_OPTIONS.map((option) => (
-            <button
-              className={settings.periodDays === option.value ? "active" : ""}
-              key={option.value}
-              onClick={() => updatePeriod(option.value)}
-              type="button"
-            >
-              {option.label}
-            </button>
-          ))}
+        <div className="settings-controls">
+          <label className="spread-input">
+            <span>銀行/卡差價估算</span>
+            <input
+              min="0"
+              onChange={(event) => updateBankSpread(event.target.value)}
+              step="0.05"
+              type="number"
+              value={settings.bankSpreadPercent}
+            />
+          </label>
+          <div className="segmented" aria-label="歷史比較區間">
+            {PERIOD_OPTIONS.map((option) => (
+              <button
+                className={settings.periodDays === option.value ? "active" : ""}
+                key={option.value}
+                onClick={() => updatePeriod(option.value)}
+                type="button"
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -333,6 +362,7 @@ export function App() {
             onSelect={() => setSelectedCurrency(currency.code)}
             onRemove={() => removeCurrency(currency.code)}
             onTargetChange={(value) => updateTarget(currency.code, value)}
+            bankSpreadPercent={settings.bankSpreadPercent}
             removable={visibleMetas.length > 1}
             snapshot={snapshots[currency.code]}
             target={settings.targets[currency.code]}
@@ -356,6 +386,7 @@ function RateCard({
   onSelect,
   onRemove,
   onTargetChange,
+  bankSpreadPercent,
   removable,
   snapshot,
   target,
@@ -365,12 +396,14 @@ function RateCard({
   onSelect: () => void;
   onRemove: () => void;
   onTargetChange: (value: string) => void;
+  bankSpreadPercent: number;
   removable: boolean;
   snapshot?: CurrencySnapshot;
   target?: number;
 }) {
   const rate = snapshot?.latestRate;
-  const reached = rate ? isTargetReached(rate, target) : false;
+  const effectiveRate = rate ? applyBankSpread(rate, bankSpreadPercent) : 0;
+  const reached = effectiveRate ? isTargetReached(effectiveRate, target) : false;
   const history = snapshot?.history;
   const badge = getHistoryBadge(history?.status);
 
@@ -401,9 +434,16 @@ function RateCard({
       ) : rate ? (
         <>
           <div className="rate-line">
-            <span>1 HKD</span>
+            <span>市場參考價</span>
             <strong>{formatRate(rate)} {currency.code}</strong>
           </div>
+          <div className="rate-line effective">
+            <span>銀行估算價</span>
+            <strong>{formatRate(effectiveRate)} {currency.code}</strong>
+          </div>
+          <p className="spread-note">
+            已扣除 {formatPercent(bankSpreadPercent)} 估算差價 / 手續費
+          </p>
           <div className={`signal ${reached ? "good" : "watch"}`}>
             {reached ? <CheckCircle2 size={18} /> : <RefreshCw size={18} />}
             <span>{reached ? "已到目標價" : "未到目標價"}</span>
@@ -440,7 +480,7 @@ function RateCard({
         <input
           min="0"
           onChange={(event) => onTargetChange(event.target.value)}
-          placeholder={`例如 ${rate ? formatRate(rate) : "20.00"}`}
+          placeholder={`例如 ${effectiveRate ? formatRate(effectiveRate) : "20.00"}`}
           step="0.0001"
           type="number"
           value={target ?? ""}
