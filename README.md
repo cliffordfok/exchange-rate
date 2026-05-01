@@ -2,6 +2,8 @@
 
 一款以香港個人旅行/消費為中心的匯率追蹤 Web App。預設用 HKD 追蹤 JPY、USD、EUR、GBP、TWD、CNY，幫你用目標價及近期歷史區間判斷目前是否接近合適兌換點。
 
+Live site: https://cliffordfok.github.io/exchange-rate/
+
 ## Features
 
 - HKD -> 常用貨幣匯率卡片
@@ -36,9 +38,11 @@ npm run preview
 
 ## GitHub Pages Deployment
 
-1. Push this repository to GitHub.
-2. Run `npm run build`.
-3. Deploy the `dist` folder with GitHub Pages, or use a GitHub Actions workflow that builds with Node and publishes `dist`.
+This repository includes a GitHub Actions workflow at `.github/workflows/deploy.yml`.
+
+1. Go to repository Settings -> Pages.
+2. Set Source to "GitHub Actions".
+3. Push to `main` or run the `Deploy to GitHub Pages` workflow manually.
 
 Because `vite.config.ts` uses `base: "./"`, the built site can be hosted under a repository subpath such as `https://username.github.io/repo-name/`.
 
