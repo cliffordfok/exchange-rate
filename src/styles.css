@@ -90,6 +90,7 @@ h2 {
 
 .hero-panel,
 .toolbar,
+.currency-manager,
 .converter,
 .rate-card,
 .notice {
@@ -127,6 +128,7 @@ label span {
 }
 
 .toolbar,
+.currency-manager,
 .converter {
   display: flex;
   justify-content: space-between;
@@ -135,6 +137,43 @@ label span {
   margin-bottom: 18px;
   padding: 18px;
   border-radius: 8px;
+}
+
+.currency-manager {
+  margin-bottom: 18px;
+}
+
+.currency-actions {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto auto;
+  gap: 12px;
+  align-items: end;
+  width: min(560px, 100%);
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  border: 1px solid #cfd9d1;
+  border-radius: 8px;
+  background: #f8faf6;
+  color: #26352d;
+  padding: 0 14px;
+  font-weight: 800;
+}
+
+.icon-button.primary {
+  border-color: #17685b;
+  background: #17685b;
+  color: #ffffff;
+}
+
+.icon-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 .section-title {
@@ -220,11 +259,31 @@ button:focus-visible {
 }
 
 .rate-card {
+  position: relative;
   display: grid;
   gap: 14px;
   min-height: 388px;
   padding: 16px;
   border-radius: 8px;
+}
+
+.remove-card {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #cfd9d1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #59655e;
+}
+
+.remove-card:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
 }
 
 .rate-card.selected {
@@ -239,6 +298,7 @@ button:focus-visible {
   width: 100%;
   min-height: 62px;
   padding: 0;
+  padding-right: 40px;
   border: 0;
   background: transparent;
   color: inherit;
@@ -398,6 +458,7 @@ dd {
   }
 
   .toolbar,
+  .currency-manager,
   .converter {
     display: grid;
   }
@@ -423,6 +484,7 @@ dd {
   }
 
   .toolbar,
+  .currency-manager,
   .converter,
   .hero-panel,
   .rate-card {
@@ -430,6 +492,7 @@ dd {
   }
 
   .converter-grid,
+  .currency-actions,
   dl {
     grid-template-columns: 1fr;
   }
