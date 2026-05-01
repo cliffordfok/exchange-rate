@@ -9,6 +9,7 @@ Live site: https://cliffordfok.github.io/exchange-rate/
 - HKD -> 常用貨幣匯率卡片
 - 金額換算器，可由 HKD 或外幣任一邊輸入
 - 每隻貨幣可設定理想兌換價
+- 銀行/信用卡差價估算，令換算結果更接近實際銀行價
 - 近 7 / 30 / 90 日歷史高低位及平均值比較
 - `localStorage` 儲存目標價及比較區間
 - API 失敗時顯示清楚錯誤狀態
@@ -18,6 +19,8 @@ Live site: https://cliffordfok.github.io/exchange-rate/
 匯率資料來自 [Frankfurter API](https://frankfurter.dev/)。
 
 Frankfurter 免 API key，適合靜態前端 App 使用。資料屬每日參考匯率，未包括銀行、信用卡、找換店差價或手續費。真正兌換前應以實際報價作準。
+
+App 會用可調百分比扣減參考匯率，估算銀行或信用卡實際可兌換價。預設差價為 1.95%，用戶可按自己使用的銀行、信用卡或找換渠道調整。
 
 部分貨幣如未被 Frankfurter 支援，App 會保留貨幣卡片並顯示資料不可用狀態。
 

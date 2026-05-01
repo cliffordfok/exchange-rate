@@ -200,6 +200,20 @@ label span {
   border-radius: 8px;
 }
 
+.settings-controls {
+  display: flex;
+  gap: 12px;
+  align-items: end;
+}
+
+.spread-input {
+  width: 170px;
+}
+
+.spread-input input {
+  font-weight: 800;
+}
+
 .segmented button {
   min-height: 42px;
   border: 0;
@@ -344,6 +358,23 @@ button:focus-visible {
   color: #0f241b;
   font-size: 1.38rem;
   text-align: right;
+}
+
+.rate-line.effective {
+  padding: 10px;
+  border-radius: 8px;
+  background: #e7f5ed;
+}
+
+.rate-line.effective strong {
+  color: #12633c;
+}
+
+.spread-note {
+  margin: -4px 0 0;
+  color: #66726b;
+  font-size: 0.82rem;
+  line-height: 1.45;
 }
 
 .signal,
@@ -498,6 +529,14 @@ dd {
   }
 
   .segmented {
+    width: 100%;
+  }
+
+  .settings-controls {
+    display: grid;
+  }
+
+  .spread-input {
     width: 100%;
   }
 
