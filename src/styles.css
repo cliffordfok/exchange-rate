@@ -16,6 +16,7 @@
 body {
   margin: 0;
   min-width: 320px;
+  overflow-x: hidden;
 }
 
 button,
@@ -257,6 +258,7 @@ select {
   background: #fbfcfa;
   color: #14241d;
   padding: 0 12px;
+  font-size: 16px;
 }
 
 input:focus,
@@ -500,18 +502,51 @@ dd {
 }
 
 @media (max-width: 640px) {
+  body {
+    background: #eef3ed;
+  }
+
   main {
-    width: min(100% - 20px, 1180px);
-    padding-top: 16px;
+    width: 100%;
+    padding: 10px 10px calc(22px + env(safe-area-inset-bottom));
   }
 
   .hero {
+    display: grid;
     gap: 16px;
-    padding-top: 18px;
+    padding: 12px 2px 14px;
   }
 
   h1 {
-    font-size: 2.55rem;
+    max-width: 11ch;
+    margin-bottom: 10px;
+    font-size: 2.18rem;
+    line-height: 1.02;
+  }
+
+  h2 {
+    font-size: 1rem;
+  }
+
+  .eyebrow {
+    margin-bottom: 8px;
+    font-size: 0.72rem;
+  }
+
+  .hero-copy p:last-child {
+    margin-bottom: 0;
+    font-size: 0.94rem;
+    line-height: 1.55;
+  }
+
+  .hero-panel {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .hero-panel div {
+    gap: 12px;
   }
 
   .toolbar,
@@ -519,7 +554,30 @@ dd {
   .converter,
   .hero-panel,
   .rate-card {
-    padding: 14px;
+    border-radius: 8px;
+    box-shadow: 0 10px 28px rgba(33, 46, 38, 0.07);
+    padding: 13px;
+  }
+
+  .toolbar,
+  .currency-manager,
+  .converter {
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+
+  .section-title {
+    gap: 9px;
+  }
+
+  .section-title svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .section-title p {
+    font-size: 0.88rem;
+    line-height: 1.45;
   }
 
   .converter-grid,
@@ -528,8 +586,40 @@ dd {
     grid-template-columns: 1fr;
   }
 
-  .segmented {
+  .converter-grid,
+  .currency-actions {
+    gap: 10px;
+  }
+
+  label {
+    gap: 6px;
+  }
+
+  .hero-panel span,
+  .updated,
+  dt,
+  .target-input span,
+  label span {
+    font-size: 0.75rem;
+  }
+
+  input,
+  select,
+  .icon-button {
+    min-height: 48px;
+  }
+
+  .icon-button {
     width: 100%;
+  }
+
+  .segmented {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .segmented button {
+    min-height: 46px;
   }
 
   .settings-controls {
@@ -542,9 +632,162 @@ dd {
 
   .rate-line {
     display: grid;
+    gap: 4px;
   }
 
   .rate-line strong {
     text-align: left;
+  }
+
+  .rate-grid {
+    gap: 10px;
+  }
+
+  .rate-card {
+    gap: 11px;
+    min-height: 0;
+  }
+
+  .card-main {
+    min-height: 52px;
+    gap: 10px;
+    padding-right: 38px;
+  }
+
+  .currency-mark {
+    width: 42px;
+    height: 42px;
+  }
+
+  .card-main strong {
+    font-size: 1.08rem;
+  }
+
+  .card-main small {
+    font-size: 0.82rem;
+  }
+
+  .remove-card {
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .rate-line strong {
+    font-size: 1.2rem;
+    overflow-wrap: anywhere;
+  }
+
+  .rate-line.effective {
+    padding: 9px;
+  }
+
+  .signal,
+  .loading-line,
+  .card-error {
+    min-height: 38px;
+    align-items: flex-start;
+    font-size: 0.84rem;
+    line-height: 1.35;
+  }
+
+  dl {
+    gap: 6px;
+  }
+
+  dl div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    padding: 9px 10px;
+  }
+
+  dt {
+    margin-bottom: 0;
+  }
+
+  dd {
+    text-align: right;
+  }
+
+  .target-input input {
+    min-height: 46px;
+  }
+
+  .notice {
+    margin-top: 10px;
+    padding: 13px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+  }
+}
+
+@media (max-width: 430px) {
+  main {
+    padding-left: max(8px, env(safe-area-inset-left));
+    padding-right: max(8px, env(safe-area-inset-right));
+  }
+
+  .hero {
+    padding-top: 8px;
+  }
+
+  h1 {
+    font-size: 1.95rem;
+  }
+
+  .hero-copy p:last-child {
+    font-size: 0.9rem;
+  }
+
+  .toolbar,
+  .currency-manager,
+  .converter,
+  .hero-panel,
+  .rate-card,
+  .notice {
+    padding: 12px;
+  }
+
+  .converter {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  .converter::before {
+    content: "";
+    position: absolute;
+    inset: -8px -8px auto;
+    height: 8px;
+    background: #eef3ed;
+  }
+
+  .rate-line strong {
+    font-size: 1.12rem;
+  }
+}
+
+@media (max-width: 374px) {
+  main {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  h1 {
+    font-size: 1.72rem;
+  }
+
+  .section-title p,
+  .hero-copy p:last-child,
+  .spread-note,
+  .notice {
+    font-size: 0.82rem;
+  }
+
+  .card-main small {
+    font-size: 0.78rem;
   }
 }
