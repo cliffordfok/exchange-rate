@@ -35,6 +35,7 @@ import {
 import { loadSettings, saveSettings, type UserSettings } from "./lib/storage";
 
 type LoadState = "idle" | "loading" | "ready";
+type ConverterDirection = "hkd-to-foreign" | "foreign-to-hkd";
 
 export function App() {
   const [settings, setSettings] = useState<UserSettings>(() => loadSettings());
@@ -47,6 +48,8 @@ export function App() {
   const [hkdAmount, setHkdAmount] = useState(10000);
   const [foreignAmount, setForeignAmount] = useState(0);
   const [lastEdited, setLastEdited] = useState<"hkd" | "foreign">("hkd");
+  const [converterDirection, setConverterDirection] =
+    useState<ConverterDirection>("hkd-to-foreign");
 
   const visibleMetas = useMemo(
     () => settings.visibleCurrencies.map((code) => getCurrencyMeta(code)),
@@ -197,6 +200,21 @@ export function App() {
     setSelectedCurrency(DEFAULT_CURRENCIES[0].code);
   }
 
+  function swapConverterDirection() {
+    setConverterDirection((current) =>
+      current === "hkd-to-foreign" ? "foreign-to-hkd" : "hkd-to-foreign",
+    );
+  }
+
+  const leftCurrency =
+    converterDirection === "hkd-to-foreign" ? BASE_CURRENCY : selectedCurrency;
+  const rightCurrency =
+    converterDirection === "hkd-to-foreign" ? selectedCurrency : BASE_CURRENCY;
+  const leftAmount =
+    converterDirection === "hkd-to-foreign" ? hkdAmount : foreignAmount;
+  const rightAmount =
+    converterDirection === "hkd-to-foreign" ? foreignAmount : hkdAmount;
+
   return (
     <main>
       <section className="hero">
@@ -304,7 +322,14 @@ export function App() {
 
       <section className="converter">
         <div className="section-title">
-          <ArrowDownUp size={20} aria-hidden="true" />
+          <button
+            className="converter-swap-button"
+            onClick={swapConverterDirection}
+            title="對掉貨幣"
+            type="button"
+          >
+            <ArrowDownUp size={20} aria-hidden="true" />
+          </button>
           <div>
             <h2>金額換算器</h2>
             <p>選一隻貨幣，輸入任一邊金額，即時計返另一邊。</p>
@@ -312,16 +337,21 @@ export function App() {
         </div>
         <div className="converter-grid">
           <label>
-            <span>由 {BASE_CURRENCY}</span>
+            <span>由 {leftCurrency}</span>
             <input
               min="0"
               onChange={(event) => {
-                setLastEdited("hkd");
-                setHkdAmount(parseNumberInput(event.target.value));
+                if (converterDirection === "hkd-to-foreign") {
+                  setLastEdited("hkd");
+                  setHkdAmount(parseNumberInput(event.target.value));
+                } else {
+                  setLastEdited("foreign");
+                  setForeignAmount(parseNumberInput(event.target.value));
+                }
               }}
               inputMode="decimal"
               type="text"
-              value={formatAmount(hkdAmount)}
+              value={formatAmount(leftAmount)}
             />
           </label>
           <label>
@@ -338,16 +368,21 @@ export function App() {
             </select>
           </label>
           <label>
-            <span>{selectedCurrency}</span>
+            <span>{rightCurrency}</span>
             <input
               min="0"
               onChange={(event) => {
-                setLastEdited("foreign");
-                setForeignAmount(parseNumberInput(event.target.value));
+                if (converterDirection === "hkd-to-foreign") {
+                  setLastEdited("foreign");
+                  setForeignAmount(parseNumberInput(event.target.value));
+                } else {
+                  setLastEdited("hkd");
+                  setHkdAmount(parseNumberInput(event.target.value));
+                }
               }}
               inputMode="decimal"
               type="text"
-              value={formatAmount(foreignAmount)}
+              value={formatAmount(rightAmount)}
             />
           </label>
         </div>
