@@ -6,6 +6,7 @@
   "description": "A Hong Kong focused exchange-rate tracker for spotting better conversion points.",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
+    "fetch:ocbc": "node scripts/fetch-ocbc-rates.mjs",
     "build": "tsc && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run"

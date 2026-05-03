@@ -1,0 +1,152 @@
+{
+  "source": "OCBC Hong Kong",
+  "sourceUrl": "https://www.ocbc.com.hk/personal-banking/zh/ocbc-bank-foreign-exchange-rates-for-personal-banking",
+  "generatedAt": "2026-05-03T14:15:30.275Z",
+  "baseCurrency": "HKD",
+  "rates": [
+    {
+      "ccy": "GBP",
+      "ccyFrom": "GBP",
+      "ccyTo": "HKD",
+      "bidRate": 10.5663,
+      "askRate": 10.7082,
+      "unit": 1,
+      "lastUpdateDatetime": "2026-05-03T13:02:06Z"
+    },
+    {
+      "ccy": "SEK",
+      "ccyFrom": "SEK",
+      "ccyTo": "HKD",
+      "bidRate": 0.8338,
+      "askRate": 0.8651,
+      "unit": 1,
+      "lastUpdateDatetime": "2026-05-03T13:02:06Z"
+    },
+    {
+      "ccy": "NZD",
+      "ccyFrom": "NZD",
+      "ccyTo": "HKD",
+      "bidRate": 4.5857,
+      "askRate": 4.6602,
+      "unit": 1,
+      "lastUpdateDatetime": "2026-05-03T13:02:06Z"
+    },
+    {
+      "ccy": "EUR",
+      "ccyFrom": "EUR",
+      "ccyTo": "HKD",
+      "bidRate": 9.1334,
+      "askRate": 9.2328,
+      "unit": 1,
+      "lastUpdateDatetime": "2026-05-03T13:02:06Z"
+    },
+    {
+      "ccy": "AUD",
+      "ccyFrom": "AUD",
+      "ccyTo": "HKD",
+      "bidRate": 5.6019,
+      "askRate": 5.6865,
+      "unit": 1,
+      "lastUpdateDatetime": "2026-05-03T13:02:06Z"
+    },
+    {
+      "ccy": "CAD",
+      "ccyFrom": "CAD",
+      "ccyTo": "HKD",
+      "bidRate": 5.7283,
+      "askRate": 5.8031,
+      "unit": 1,
+      "lastUpdateDatetime": "2026-05-03T13:02:07Z"
+    },
+    {
+      "ccy": "CNY",
+      "ccyFrom": "CNY",
+      "ccyTo": "HKD",
+      "bidRate": 1.1418,
+      "askRate": 1.1532,
+      "unit": 1,
+      "lastUpdateDatetime": "2026-05-03T13:30:39Z"
+    },
+    {
+      "ccy": "MOP",
+      "ccyFrom": "MOP",
+      "ccyTo": "HKD",
+      "bidRate": 0.9639,
+      "askRate": 0.9769,
+      "unit": 1,
+      "lastUpdateDatetime": "2026-05-03T13:02:08Z"
+    },
+    {
+      "ccy": "NOK",
+      "ccyFrom": "NOK",
+      "ccyTo": "HKD",
+      "bidRate": 0.8294,
+      "askRate": 0.8597,
+      "unit": 1,
+      "lastUpdateDatetime": "2026-05-03T13:02:08Z"
+    },
+    {
+      "ccy": "THB",
+      "ccyFrom": "THB",
+      "ccyTo": "HKD",
+      "bidRate": 0.2363,
+      "askRate": 0.2454,
+      "unit": 1,
+      "lastUpdateDatetime": "2026-05-03T13:30:39Z"
+    },
+    {
+      "ccy": "SGD",
+      "ccyFrom": "SGD",
+      "ccyTo": "HKD",
+      "bidRate": 6.1176,
+      "askRate": 6.1899,
+      "unit": 1,
+      "lastUpdateDatetime": "2026-05-03T13:02:08Z"
+    },
+    {
+      "ccy": "USD",
+      "ccyFrom": "USD",
+      "ccyTo": "HKD",
+      "bidRate": 7.8213,
+      "askRate": 7.8512,
+      "unit": 1,
+      "lastUpdateDatetime": "2026-05-03T13:02:07Z"
+    },
+    {
+      "ccy": "DKK",
+      "ccyFrom": "DKK",
+      "ccyTo": "HKD",
+      "bidRate": 1.2139,
+      "askRate": 1.2441,
+      "unit": 1,
+      "lastUpdateDatetime": "2026-05-03T13:02:09Z"
+    },
+    {
+      "ccy": "CNH",
+      "ccyFrom": "CNH",
+      "ccyTo": "HKD",
+      "bidRate": 1.1394,
+      "askRate": 1.1543,
+      "unit": 1,
+      "lastUpdateDatetime": "2026-05-03T13:02:09Z"
+    },
+    {
+      "ccy": "JPY",
+      "ccyFrom": "JPY",
+      "ccyTo": "HKD",
+      "bidRate": 0.04954,
+      "askRate": 0.0502,
+      "unit": 1,
+      "lastUpdateDatetime": "2026-05-03T13:02:09Z"
+    },
+    {
+      "ccy": "CHF",
+      "ccyFrom": "CHF",
+      "ccyTo": "HKD",
+      "bidRate": 9.9508,
+      "askRate": 10.1003,
+      "unit": 1,
+      "lastUpdateDatetime": "2026-05-03T13:02:09Z"
+    }
+  ]
+}

@@ -10,6 +10,7 @@ Live site: https://cliffordfok.github.io/exchange-rate/
 - 金額換算器，可由 HKD 或外幣任一邊輸入
 - 每隻貨幣可設定理想兌換價
 - 銀行/信用卡差價估算，令換算結果更接近實際銀行價
+- 自動讀取 OCBC 華僑銀行香港外匯牌價，支援貨幣會優先使用銀行買入/賣出價
 - 近 7 / 30 / 90 日歷史高低位及平均值比較
 - `localStorage` 儲存目標價及比較區間
 - API 失敗時顯示清楚錯誤狀態
@@ -21,6 +22,8 @@ Live site: https://cliffordfok.github.io/exchange-rate/
 Frankfurter 免 API key，適合靜態前端 App 使用。資料屬每日參考匯率，未包括銀行、信用卡、找換店差價或手續費。真正兌換前應以實際報價作準。
 
 App 會用可調百分比扣減參考匯率，估算銀行或信用卡實際可兌換價。預設差價為 1.95%，用戶可按自己使用的銀行、信用卡或找換渠道調整。
+
+部署流程會在 GitHub Actions 中抓取 OCBC 香港外匯 API，產生 `ocbc-rates.json`，前端會優先使用該檔案中的銀行牌價。若某隻貨幣未有 OCBC 資料，App 會自動回落到參考匯率加差價估算。
 
 部分貨幣如未被 Frankfurter 支援，App 會保留貨幣卡片並顯示資料不可用狀態。
 

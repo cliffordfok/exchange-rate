@@ -24,7 +24,6 @@ import {
 import { fetchCurrencySnapshot, type CurrencySnapshot } from "./lib/api";
 import {
   convertFromHkd,
-  convertToHkd,
   applyBankSpread,
   formatAmount,
   formatPercent,
@@ -122,22 +121,30 @@ export function App() {
 
   const selectedSnapshot = snapshots[selectedCurrency];
   const selectedRate = selectedSnapshot?.latestRate ?? 0;
-  const selectedEffectiveRate = applyBankSpread(
-    selectedRate,
-    settings.bankSpreadPercent,
-  );
+  const selectedHkdToForeignRate =
+    selectedSnapshot?.bankHkdToForeignRate ??
+    applyBankSpread(selectedRate, settings.bankSpreadPercent);
+  const selectedForeignToHkdRate =
+    selectedSnapshot?.bankForeignToHkdRate ??
+    (selectedHkdToForeignRate ? 1 / selectedHkdToForeignRate : 0);
 
   useEffect(() => {
-    if (!selectedEffectiveRate) {
+    if (!selectedHkdToForeignRate || !selectedForeignToHkdRate) {
       return;
     }
 
     if (lastEdited === "hkd") {
-      setForeignAmount(convertFromHkd(hkdAmount, selectedEffectiveRate));
+      setForeignAmount(convertFromHkd(hkdAmount, selectedHkdToForeignRate));
     } else {
-      setHkdAmount(convertToHkd(foreignAmount, selectedEffectiveRate));
+      setHkdAmount(convertFromHkd(foreignAmount, selectedForeignToHkdRate));
     }
-  }, [foreignAmount, hkdAmount, lastEdited, selectedEffectiveRate]);
+  }, [
+    foreignAmount,
+    hkdAmount,
+    lastEdited,
+    selectedForeignToHkdRate,
+    selectedHkdToForeignRate,
+  ]);
 
   function updateTarget(code: CurrencyCode, value: string) {
     const target = Number(value);
@@ -227,8 +234,8 @@ export function App() {
         </div>
         <div className="hero-panel" aria-label="匯率資料狀態">
           <div>
-            <span>資料來源</span>
-            <strong>Frankfurter API</strong>
+            <span>銀行價</span>
+            <strong>OCBC / fallback</strong>
           </div>
           <div>
             <span>比較區間</span>
@@ -437,10 +444,13 @@ function RateCard({
   target?: number;
 }) {
   const rate = snapshot?.latestRate;
-  const effectiveRate = rate ? applyBankSpread(rate, bankSpreadPercent) : 0;
+  const effectiveRate =
+    snapshot?.bankHkdToForeignRate ??
+    (rate ? applyBankSpread(rate, bankSpreadPercent) : 0);
   const reached = effectiveRate ? isTargetReached(effectiveRate, target) : false;
   const history = snapshot?.history;
   const badge = getHistoryBadge(history?.status);
+  const usesOcbc = snapshot?.rateSource === "ocbc";
 
   return (
     <article className={`rate-card ${isSelected ? "selected" : ""}`}>
@@ -473,11 +483,15 @@ function RateCard({
             <strong>{formatRate(rate)} {currency.code}</strong>
           </div>
           <div className="rate-line effective">
-            <span>銀行估算價</span>
+            <span>{usesOcbc ? "OCBC 銀行價" : "銀行估算價"}</span>
             <strong>{formatRate(effectiveRate)} {currency.code}</strong>
           </div>
           <p className="spread-note">
-            已扣除 {formatPercent(bankSpreadPercent)} 估算差價 / 手續費
+            {usesOcbc && snapshot?.askRate && snapshot?.bidRate
+              ? `OCBC 賣出 ${formatRate(snapshot.askRate)} / 買入 ${formatRate(
+                  snapshot.bidRate,
+                )} HKD`
+              : `已扣除 ${formatPercent(bankSpreadPercent)} 估算差價 / 手續費`}
           </p>
           <div className={`signal ${reached ? "good" : "watch"}`}>
             {reached ? <CheckCircle2 size={18} /> : <RefreshCw size={18} />}
@@ -521,9 +535,25 @@ function RateCard({
           value={target ?? ""}
         />
       </label>
-      <p className="updated">更新日期：{snapshot?.latestDate ?? "--"}</p>
+      <p className="updated">更新日期：{formatDisplayDate(snapshot?.latestDate)}</p>
     </article>
   );
+}
+
+function formatDisplayDate(value: string | null | undefined): string {
+  if (!value) {
+    return "--";
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleString("zh-HK", {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
 }
 
 function HistoryBar({ low, high, latest }: { low: number; high: number; latest: number }) {
