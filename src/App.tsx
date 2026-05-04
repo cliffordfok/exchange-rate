@@ -478,21 +478,40 @@ function RateCard({
         </div>
       ) : rate ? (
         <>
-          <div className="rate-line">
-            <span>市場參考價</span>
-            <strong>{formatRate(rate)} {currency.code}</strong>
-          </div>
-          <div className="rate-line effective">
-            <span>{usesOcbc ? "OCBC 銀行價" : "銀行估算價"}</span>
-            <strong>{formatRate(effectiveRate)} {currency.code}</strong>
-          </div>
-          <p className="spread-note">
-            {usesOcbc && snapshot?.askRate && snapshot?.bidRate
-              ? `OCBC 賣出 ${formatRate(snapshot.askRate)} / 買入 ${formatRate(
-                  snapshot.bidRate,
-                )} HKD`
-              : `已扣除 ${formatPercent(bankSpreadPercent)} 估算差價 / 手續費`}
-          </p>
+          {usesOcbc && snapshot?.askRate && snapshot?.bidRate ? (
+            <>
+              <div className="bank-quote-unit">
+                1 {currency.code} = HKD
+              </div>
+              <div className="bank-quote-grid">
+                <div className="bank-quote bid">
+                  <span>銀行買入價</span>
+                  <strong>{formatRate(snapshot.bidRate)}</strong>
+                </div>
+                <div className="bank-quote ask">
+                  <span>銀行賣出價</span>
+                  <strong>{formatRate(snapshot.askRate)}</strong>
+                </div>
+              </div>
+              <p className="spread-note">
+                換外幣用賣出價；外幣換港元用買入價
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="rate-line">
+                <span>市場參考價</span>
+                <strong>{formatRate(rate)} {currency.code}</strong>
+              </div>
+              <div className="rate-line effective">
+                <span>銀行估算價</span>
+                <strong>{formatRate(effectiveRate)} {currency.code}</strong>
+              </div>
+              <p className="spread-note">
+                已扣除 {formatPercent(bankSpreadPercent)} 估算差價 / 手續費
+              </p>
+            </>
+          )}
           <div className={`signal ${reached ? "good" : "watch"}`}>
             {reached ? <CheckCircle2 size={18} /> : <RefreshCw size={18} />}
             <span>{reached ? "已到目標價" : "未到目標價"}</span>
