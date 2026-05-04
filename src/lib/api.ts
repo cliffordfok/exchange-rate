@@ -58,12 +58,13 @@ let ocbcRatesPromise: Promise<OcbcRatesResponse | null> | null = null;
 export async function fetchCurrencySnapshot(
   code: CurrencyCode,
   days: number,
+  forceRefresh = false,
 ): Promise<CurrencySnapshot> {
   try {
     const [latestResponse, historicalResponse, ocbcRates] = await Promise.all([
       fetch(`${FRANKFURTER_API_BASE}/latest?base=HKD&symbols=${code}`),
       fetch(buildHistoricalUrl(code, days)),
-      fetchOcbcRates(),
+      fetchOcbcRates(forceRefresh),
     ]);
 
     if (!latestResponse.ok || !historicalResponse.ok) {
@@ -117,8 +118,16 @@ export async function fetchCurrencySnapshot(
   }
 }
 
-async function fetchOcbcRates(): Promise<OcbcRatesResponse | null> {
-  ocbcRatesPromise ??= fetch(OCBC_RATES_URL, { cache: "no-store" })
+async function fetchOcbcRates(forceRefresh = false): Promise<OcbcRatesResponse | null> {
+  if (forceRefresh) {
+    ocbcRatesPromise = null;
+  }
+
+  const url = forceRefresh
+    ? `${OCBC_RATES_URL}?refresh=${Date.now()}`
+    : OCBC_RATES_URL;
+
+  ocbcRatesPromise ??= fetch(url, { cache: "no-store" })
     .then((response) => {
       if (!response.ok) {
         return null;
