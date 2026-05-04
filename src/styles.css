@@ -393,6 +393,49 @@ button:focus-visible {
   color: #12633c;
 }
 
+.bank-quote-unit {
+  color: #66726b;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.bank-quote-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.bank-quote {
+  display: grid;
+  gap: 6px;
+  min-height: 86px;
+  border-radius: 8px;
+  padding: 11px;
+}
+
+.bank-quote span {
+  color: #66726b;
+  font-size: 0.78rem;
+}
+
+.bank-quote strong {
+  color: #0f241b;
+  font-size: 1.34rem;
+  line-height: 1;
+}
+
+.bank-quote.bid {
+  background: #f6f8f4;
+}
+
+.bank-quote.ask {
+  background: #e7f5ed;
+}
+
+.bank-quote.ask strong {
+  color: #12633c;
+}
+
 .spread-note {
   margin: -4px 0 0;
   color: #66726b;
@@ -702,6 +745,20 @@ dd {
 
   .rate-line.effective {
     padding: 9px;
+  }
+
+  .bank-quote-grid {
+    gap: 8px;
+  }
+
+  .bank-quote {
+    min-height: 78px;
+    padding: 10px;
+  }
+
+  .bank-quote strong {
+    font-size: 1.12rem;
+    overflow-wrap: anywhere;
   }
 
   .signal,
