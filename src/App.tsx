@@ -49,6 +49,7 @@ export function App() {
   const [lastEdited, setLastEdited] = useState<"hkd" | "foreign">("hkd");
   const [converterDirection, setConverterDirection] =
     useState<ConverterDirection>("hkd-to-foreign");
+  const [refreshNonce, setRefreshNonce] = useState(0);
 
   const visibleMetas = useMemo(
     () => settings.visibleCurrencies.map((code) => getCurrencyMeta(code)),
@@ -92,7 +93,7 @@ export function App() {
       setLoadState("loading");
       const results = await Promise.all(
         settings.visibleCurrencies.map((code) =>
-          fetchCurrencySnapshot(code, settings.periodDays),
+          fetchCurrencySnapshot(code, settings.periodDays, refreshNonce > 0),
         ),
       );
 
@@ -117,7 +118,7 @@ export function App() {
     return () => {
       cancelled = true;
     };
-  }, [settings.periodDays, settings.visibleCurrencies]);
+  }, [refreshNonce, settings.periodDays, settings.visibleCurrencies]);
 
   const selectedSnapshot = snapshots[selectedCurrency];
   const selectedRate = selectedSnapshot?.latestRate ?? 0;
@@ -213,6 +214,10 @@ export function App() {
     );
   }
 
+  function refreshRates() {
+    setRefreshNonce((current) => current + 1);
+  }
+
   const leftCurrency =
     converterDirection === "hkd-to-foreign" ? BASE_CURRENCY : selectedCurrency;
   const rightCurrency =
@@ -245,6 +250,15 @@ export function App() {
             <span>更新</span>
             <strong>{loadState === "loading" ? "載入中" : "每日參考價"}</strong>
           </div>
+          <button
+            className="refresh-rates-button"
+            disabled={loadState === "loading"}
+            onClick={refreshRates}
+            type="button"
+          >
+            <RefreshCw size={16} aria-hidden="true" />
+            <span>{loadState === "loading" ? "更新中" : "手動更新"}</span>
+          </button>
         </div>
       </section>
 
@@ -447,10 +461,14 @@ function RateCard({
   const effectiveRate =
     snapshot?.bankHkdToForeignRate ??
     (rate ? applyBankSpread(rate, bankSpreadPercent) : 0);
-  const reached = effectiveRate ? isTargetReached(effectiveRate, target) : false;
   const history = snapshot?.history;
   const badge = getHistoryBadge(history?.status);
   const usesOcbc = snapshot?.rateSource === "ocbc";
+  const targetRate = usesOcbc ? snapshot?.askRate ?? null : effectiveRate;
+  const reached =
+    usesOcbc && target && targetRate
+      ? targetRate <= target
+      : isTargetReached(effectiveRate, target);
 
   return (
     <article className={`rate-card ${isSelected ? "selected" : ""}`}>
@@ -544,11 +562,13 @@ function RateCard({
       )}
 
       <label className="target-input">
-        <span>理想兌換價</span>
+        <span>{usesOcbc ? "理想賣出價" : "理想兌換價"}</span>
         <input
           min="0"
           onChange={(event) => onTargetChange(event.target.value)}
-          placeholder={`例如 ${effectiveRate ? formatRate(effectiveRate) : "20.00"}`}
+          placeholder={`例如 ${
+            targetRate ? formatRate(targetRate) : "20.00"
+          }`}
           step="0.0001"
           type="number"
           value={target ?? ""}

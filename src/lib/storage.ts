@@ -13,12 +13,12 @@ export const defaultSettings: UserSettings = {
   bankSpreadPercent: 1.95,
   periodDays: 30,
   targets: {
-    JPY: 20,
-    USD: 0.1285,
-    EUR: 0.118,
-    GBP: 0.101,
+    JPY: 0.0502,
+    USD: 7.8495,
+    EUR: 9.2328,
+    GBP: 10.7082,
     TWD: 4.12,
-    CNY: 0.925,
+    CNY: 1.1532,
   },
   visibleCurrencies: ["JPY", "USD", "EUR", "GBP", "TWD", "CNY"],
 };

@@ -114,6 +114,24 @@ h2 {
   gap: 18px;
 }
 
+.refresh-rates-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  border: 1px solid #17685b;
+  border-radius: 8px;
+  background: #17685b;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.refresh-rates-button:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
 .hero-panel span,
 .updated,
 dt,
@@ -611,6 +629,11 @@ dd {
 
   .hero-panel div {
     gap: 12px;
+  }
+
+  .refresh-rates-button {
+    width: 100%;
+    min-height: 46px;
   }
 
   .toolbar,
