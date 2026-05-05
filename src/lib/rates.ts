@@ -88,6 +88,22 @@ export function formatAmount(value: number): string {
   });
 }
 
+export function formatCurrencyAmount(
+  value: number,
+  currencyCode: CurrencyCode,
+): string {
+  if (!Number.isFinite(value)) {
+    return "0";
+  }
+
+  const fractionDigits = getAmountFractionDigits(currencyCode);
+
+  return value.toLocaleString("en-US", {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+  });
+}
+
 export function parseNumberInput(value: string): number {
   const parsed = Number(value.replace(/,/g, ""));
 
@@ -104,6 +120,14 @@ function getRateFractionDigits(value: number): number {
   }
 
   return 4;
+}
+
+function getAmountFractionDigits(currencyCode: CurrencyCode): number {
+  if (["JPY", "KRW", "IDR", "HUF", "ISK"].includes(currencyCode)) {
+    return 0;
+  }
+
+  return 2;
 }
 
 export function convertFromHkd(hkdAmount: number, rate: number): number {

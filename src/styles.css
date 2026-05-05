@@ -540,7 +540,15 @@ dd {
 }
 
 .target-input {
+  display: grid;
+  gap: 6px;
   margin-top: auto;
+}
+
+.target-input small {
+  color: #17685b;
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 .updated {

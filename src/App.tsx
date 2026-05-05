@@ -26,6 +26,7 @@ import {
   convertFromHkd,
   applyBankSpread,
   formatAmount,
+  formatCurrencyAmount,
   formatPercent,
   formatRate,
   isTargetReached,
@@ -226,6 +227,14 @@ export function App() {
     converterDirection === "hkd-to-foreign" ? hkdAmount : foreignAmount;
   const rightAmount =
     converterDirection === "hkd-to-foreign" ? foreignAmount : hkdAmount;
+  const leftAmountDisplay =
+    leftCurrency === BASE_CURRENCY
+      ? formatAmount(leftAmount)
+      : formatCurrencyAmount(leftAmount, leftCurrency);
+  const rightAmountDisplay =
+    rightCurrency === BASE_CURRENCY
+      ? formatAmount(rightAmount)
+      : formatCurrencyAmount(rightAmount, rightCurrency);
 
   return (
     <main>
@@ -372,7 +381,7 @@ export function App() {
               }}
               inputMode="decimal"
               type="text"
-              value={formatAmount(leftAmount)}
+              value={leftAmountDisplay}
             />
           </label>
           <label>
@@ -403,7 +412,7 @@ export function App() {
               }}
               inputMode="decimal"
               type="text"
-              value={formatAmount(rightAmount)}
+              value={rightAmountDisplay}
             />
           </label>
         </div>
@@ -465,11 +474,18 @@ function RateCard({
   const badge = getHistoryBadge(history?.status);
   const usesOcbc = snapshot?.rateSource === "ocbc";
   const historyDisplayStats = getHistoryDisplayStats(history, usesOcbc);
+  const smartTarget = getSmartTarget({
+    effectiveRate,
+    historyDisplayStats,
+    targetRate: usesOcbc ? snapshot?.askRate ?? null : effectiveRate,
+    usesOcbc,
+  });
+  const activeTarget = target ?? smartTarget ?? undefined;
   const targetRate = usesOcbc ? snapshot?.askRate ?? null : effectiveRate;
   const reached =
-    usesOcbc && target && targetRate
-      ? targetRate <= target
-      : isTargetReached(effectiveRate, target);
+    usesOcbc && activeTarget && targetRate
+      ? targetRate <= activeTarget
+      : isTargetReached(effectiveRate, activeTarget);
 
   return (
     <article className={`rate-card ${isSelected ? "selected" : ""}`}>
@@ -578,12 +594,19 @@ function RateCard({
           min="0"
           onChange={(event) => onTargetChange(event.target.value)}
           placeholder={`例如 ${
-            targetRate ? formatRate(targetRate) : "20.00"
+            smartTarget
+              ? formatRate(smartTarget)
+              : targetRate
+                ? formatRate(targetRate)
+                : "20.00"
           }`}
           step="0.0001"
           type="number"
           value={target ?? ""}
         />
+        {target ? null : smartTarget ? (
+          <small>智能建議：{formatRate(smartTarget)}</small>
+        ) : null}
       </label>
       <p className="updated">更新日期：{formatDisplayDate(snapshot?.latestDate)}</p>
     </article>
@@ -623,6 +646,38 @@ function getHistoryDisplayStats(
     high: Math.max(...bankQuoteValues),
     low: Math.min(...bankQuoteValues),
   };
+}
+
+function getSmartTarget({
+  effectiveRate,
+  historyDisplayStats,
+  targetRate,
+  usesOcbc,
+}: {
+  effectiveRate: number;
+  historyDisplayStats: { average: number; high: number; low: number } | null;
+  targetRate: number | null;
+  usesOcbc: boolean;
+}) {
+  if (historyDisplayStats) {
+    const { average, high, low } = historyDisplayStats;
+
+    if (usesOcbc) {
+      return low + (average - low) * 0.35;
+    }
+
+    return high - (high - average) * 0.35;
+  }
+
+  if (usesOcbc && targetRate && targetRate > 0) {
+    return targetRate * 0.995;
+  }
+
+  if (effectiveRate > 0) {
+    return effectiveRate * 1.005;
+  }
+
+  return null;
 }
 
 function formatDisplayDate(value: string | null | undefined): string {
