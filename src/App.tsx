@@ -474,14 +474,14 @@ function RateCard({
   const badge = getHistoryBadge(history?.status);
   const usesOcbc = snapshot?.rateSource === "ocbc";
   const historyDisplayStats = getHistoryDisplayStats(history, usesOcbc);
+  const targetRate = usesOcbc ? snapshot?.askRate ?? null : effectiveRate;
   const smartTarget = getSmartTarget({
+    bankAskRate: usesOcbc ? snapshot?.askRate ?? null : null,
+    bankBidRate: usesOcbc ? snapshot?.bidRate ?? null : null,
     effectiveRate,
     historyDisplayStats,
-    targetRate: usesOcbc ? snapshot?.askRate ?? null : effectiveRate,
-    usesOcbc,
   });
   const activeTarget = target ?? smartTarget ?? undefined;
-  const targetRate = usesOcbc ? snapshot?.askRate ?? null : effectiveRate;
   const reached =
     usesOcbc && activeTarget && targetRate
       ? targetRate <= activeTarget
@@ -649,28 +649,28 @@ function getHistoryDisplayStats(
 }
 
 function getSmartTarget({
+  bankAskRate,
+  bankBidRate,
   effectiveRate,
   historyDisplayStats,
-  targetRate,
-  usesOcbc,
 }: {
+  bankAskRate: number | null;
+  bankBidRate: number | null;
   effectiveRate: number;
   historyDisplayStats: { average: number; high: number; low: number } | null;
-  targetRate: number | null;
-  usesOcbc: boolean;
 }) {
+  if (bankAskRate && bankAskRate > 0) {
+    if (bankBidRate && bankBidRate > 0 && bankBidRate < bankAskRate) {
+      return bankAskRate - (bankAskRate - bankBidRate) * 0.5;
+    }
+
+    return bankAskRate * 0.995;
+  }
+
   if (historyDisplayStats) {
     const { average, high, low } = historyDisplayStats;
 
-    if (usesOcbc) {
-      return low + (average - low) * 0.35;
-    }
-
     return high - (high - average) * 0.35;
-  }
-
-  if (usesOcbc && targetRate && targetRate > 0) {
-    return targetRate * 0.995;
   }
 
   if (effectiveRate > 0) {
