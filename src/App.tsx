@@ -464,6 +464,7 @@ function RateCard({
   const history = snapshot?.history;
   const badge = getHistoryBadge(history?.status);
   const usesOcbc = snapshot?.rateSource === "ocbc";
+  const historyDisplayStats = getHistoryDisplayStats(history, usesOcbc);
   const targetRate = usesOcbc ? snapshot?.askRate ?? null : effectiveRate;
   const reached =
     usesOcbc && target && targetRate
@@ -542,15 +543,25 @@ function RateCard({
           <dl>
             <div>
               <dt>低位</dt>
-              <dd>{history ? formatRate(history.low) : "--"}</dd>
+              <dd>
+                {historyDisplayStats ? formatRate(historyDisplayStats.low) : "--"}
+              </dd>
             </div>
             <div>
               <dt>平均</dt>
-              <dd>{history ? formatRate(history.average) : "--"}</dd>
+              <dd>
+                {historyDisplayStats
+                  ? formatRate(historyDisplayStats.average)
+                  : "--"}
+              </dd>
             </div>
             <div>
               <dt>高位</dt>
-              <dd>{history ? formatRate(history.high) : "--"}</dd>
+              <dd>
+                {historyDisplayStats
+                  ? formatRate(historyDisplayStats.high)
+                  : "--"}
+              </dd>
             </div>
           </dl>
         </>
@@ -577,6 +588,41 @@ function RateCard({
       <p className="updated">更新日期：{formatDisplayDate(snapshot?.latestDate)}</p>
     </article>
   );
+}
+
+function getHistoryDisplayStats(
+  history: CurrencySnapshot["history"] | undefined,
+  useBankQuote: boolean,
+) {
+  if (!history) {
+    return null;
+  }
+
+  if (!useBankQuote) {
+    return {
+      average: history.average,
+      high: history.high,
+      low: history.low,
+    };
+  }
+
+  const bankQuoteValues = history.points
+    .map((point) => (point.value > 0 ? 1 / point.value : null))
+    .filter(
+      (value): value is number => value !== null && Number.isFinite(value),
+    );
+
+  if (bankQuoteValues.length === 0) {
+    return null;
+  }
+
+  return {
+    average:
+      bankQuoteValues.reduce((total, value) => total + value, 0) /
+      bankQuoteValues.length,
+    high: Math.max(...bankQuoteValues),
+    low: Math.min(...bankQuoteValues),
+  };
 }
 
 function formatDisplayDate(value: string | null | undefined): string {
