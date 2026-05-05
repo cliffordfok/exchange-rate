@@ -165,6 +165,19 @@ export function normaliseHistoricalRates(
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
+export function normaliseOcbcDateTime(value: string): string {
+  const trimmed = value.trim();
+  const utcLikeMatch = trimmed.match(
+    /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?)Z$/,
+  );
+
+  if (!utcLikeMatch) {
+    return trimmed;
+  }
+
+  return `${utcLikeMatch[1]}+08:00`;
+}
+
 function toIsoDate(date: Date): string {
   return date.toISOString().slice(0, 10);
 }

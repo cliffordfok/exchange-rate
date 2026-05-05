@@ -3,6 +3,7 @@ import {
   buildHistoricalUrl,
   classifyAgainstHistory,
   normaliseHistoricalRates,
+  normaliseOcbcDateTime,
   type HistoricalStats,
 } from "./rates";
 
@@ -95,7 +96,9 @@ export async function fetchCurrencySnapshot(
       bankHkdToForeignRate,
       bidRate: ocbcRate?.bidRate ?? null,
       latestRate: latestRate ?? null,
-      latestDate: ocbcRate?.lastUpdateDatetime ?? latest.date,
+      latestDate: ocbcRate
+        ? normaliseOcbcDateTime(ocbcRate.lastUpdateDatetime)
+        : latest.date,
       rateSource: ocbcRate ? "ocbc" : "estimated",
       history: classifyAgainstHistory(points),
       unit,
