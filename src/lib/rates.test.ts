@@ -11,6 +11,7 @@ import {
   formatCurrencyAmount,
   isTargetReached,
   normaliseHistoricalRates,
+  normaliseOcbcDateTime,
   parseNumberInput,
 } from "./rates";
 
@@ -51,6 +52,15 @@ describe("rate helpers", () => {
       { date: "2026-01-01", value: 18 },
       { date: "2026-01-02", value: 19 },
     ]);
+  });
+
+  it("treats OCBC Z timestamps as Hong Kong local quote times", () => {
+    expect(normaliseOcbcDateTime("2026-05-05T23:29:47Z")).toBe(
+      "2026-05-05T23:29:47+08:00",
+    );
+    expect(normaliseOcbcDateTime("2026-05-05T23:29:47+08:00")).toBe(
+      "2026-05-05T23:29:47+08:00",
+    );
   });
 
   it("formats displayed numbers with thousands separators", () => {

@@ -23,6 +23,19 @@ function formatHongKongDateTime() {
   )}:${value("minute")}:${value("second")}.000+08:00`;
 }
 
+function normaliseOcbcDateTime(value) {
+  const trimmed = String(value ?? "").trim();
+  const utcLikeMatch = trimmed.match(
+    /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?)Z$/,
+  );
+
+  if (!utcLikeMatch) {
+    return trimmed;
+  }
+
+  return `${utcLikeMatch[1]}+08:00`;
+}
+
 async function fetchOcbcRates() {
   const response = await fetch(OCBC_ENDPOINT, {
     method: "POST",
@@ -61,7 +74,7 @@ async function fetchOcbcRates() {
       bidRate: Number(row.bidRate),
       askRate: Number(row.askRate),
       unit: Number(row.unit || 1),
-      lastUpdateDatetime: String(row.lastUpdateDatetime ?? ""),
+      lastUpdateDatetime: normaliseOcbcDateTime(row.lastUpdateDatetime),
     }));
 }
 
