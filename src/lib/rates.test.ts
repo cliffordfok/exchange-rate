@@ -8,6 +8,7 @@ import {
   formatPercent,
   formatRate,
   buildHistoricalUrl,
+  formatCurrencyAmount,
   isTargetReached,
   normaliseHistoricalRates,
   parseNumberInput,
@@ -55,6 +56,11 @@ describe("rate helpers", () => {
   it("formats displayed numbers with thousands separators", () => {
     expect(formatAmount(1234567.89123)).toBe("1,234,567.8912");
     expect(formatRate(1234.5)).toBe("1,234.50");
+  });
+
+  it("formats currency amounts with sensible cash precision", () => {
+    expect(formatCurrencyAmount(200280.3925, "JPY")).toBe("200,280");
+    expect(formatCurrencyAmount(1274.3925, "USD")).toBe("1,274.39");
   });
 
   it("parses numeric input with separators", () => {
